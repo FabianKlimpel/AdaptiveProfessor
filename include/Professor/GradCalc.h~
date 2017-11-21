@@ -1,0 +1,31 @@
+#ifndef __GRADCALC__H
+#define __GRADCALC__H
+
+#include <iostream>
+#include <vector>
+#include <cassert>
+#include <stdexcept>
+#include "Professor/LinAlg.h"
+#include "Professor/ParamPoints.h"
+
+using namespace std;
+
+namespace Professor{class ParamPoints;}
+
+class GradCalc
+{
+public:
+	GradCalc();
+
+	void initStructure(vector<vector<double>>& pts);
+	const vector<double> getGradVector(const size_t i, const std::vector<double>& bfp, vector<vector<double>>& pts, const int order);
+	const vector<vector<double>> getAllGradVectors(const std::vector<double>& bfp, Professor::ParamPoints& pts, const int order);
+
+private:
+	double extendStructure(const size_t i, const size_t j, const size_t numFitParams, vector<vector<double>>& pts, const int order);
+	double addMonomial(const size_t i, const size_t j, const size_t k, vector<vector<double>>& pts, const int order);
+	void setstructure(size_t i, size_t j, vector<double> vec){_structure[i][j] = vec;}
+
+	vector<vector<vector<double>>> _structure;
+};
+#endif

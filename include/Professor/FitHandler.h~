@@ -1,0 +1,121 @@
+#ifndef __FITHANDLER__H
+#define __FITHANDLER__H
+
+#include <iostream>
+#include <stdlib.h>
+#include <vector>
+#include <fstream>
+#include <math.h>
+#include "Professor/LinAlg.h"
+#include <omp.h>
+#include "Professor/OutputHandler.h"
+#include <limits>
+#include "Professor/ParamPoints.h"
+#include "Professor/GradHandler.h"
+#include "Professor/Ipol.h"
+#include <cmath>
+#include <Eigen/Dense>
+#include "Professor/QRHandler.h"
+
+using namespace std;
+using namespace Eigen;
+
+//forward declaration
+class OutputHandler;
+//class QRHandler;
+
+/**
+* This class handles the fitting procedure.
+*/
+class FitHandler
+{
+
+public:
+	//Default Constructor for fitting
+	FitHandler();
+
+	//Constructor used for error calculation
+	FitHandler(vector<double>& fitparams, const vector<double>& pterrs, Professor::ParamPoints& pts, int& order, int& num_ipol);
+
+	//calculates the next iterationstep
+	void nextStep(Professor::ParamPoints& pts, const double& threshold, const double& kappa);
+
+	//calculator of fit errors
+	void setFitErrors(size_t num_ipol);
+
+	//getter of the smoothness
+	const double getDsmooth(Professor::ParamPoints& pts, GradHandler& gh);
+
+	//getter of Chi2
+	const double getChi2();
+
+	//getter of @_iterationcounter
+	size_t getIterationCounter() {return _qrh.getIterationCounter();}
+
+	//setup of a new bin
+	void startBin(Professor::ParamPoints& pts, const vector<double>& ptvals, const vector<double>& pterrs, const double& threshold, const double& kappa);
+
+	//getter of the number of fitparameters
+	size_t getNumFitParams();
+
+	//getter of the fitparameters
+	vector<double> getFitParams() {return _bfp;}
+
+	//getter of @_a
+	const vector<double> get_a() {return _a;}
+
+	//setter of a specific bin in a specific iterationstep
+	void setToIteration(Professor::ParamPoints& pts, const vector<double>& ptvals, const vector<double>& pterrs, int num_ipol, double threshold, double kappa, int bestiteration);
+
+	//calculates the dot product between every gradient vector
+	vector<double> getAllGradDotProducts(Professor::ParamPoints& pts);
+
+	//adds 0's as fit parameters and changes the order of the fit parameters in order to become usable in Professor 2.2.1
+	void sortFitParams(vector<int>& match_index);
+
+	//getter of @_max
+	int getMaxPower() {return _qrh.getMaxPower();}
+
+	//getter of the fit errors
+	vector<double> getFitErrors() {return _bfperr;}
+
+	//getter of @_power
+	vector<vector<int>> getPowers() {return _qrh.get_power();}
+
+private:
+	/**
+	* @_m: storage of the matrix M
+	* @_q, @r: storage of the matrices Q & R of the QR-decomposition
+	* @_d: identity matrix
+	* @_mprime: coloumnwise normalized M
+	* @_b: reference values
+	* @_a: vector for the fitparameters; is used as indicator of RR constrained parameters
+	* @_bprime: normalized @_b
+	* @_bfp, @_bfperr: best fit parameters and corresponding errors
+	* @_sigma: error of the reference values
+	* @_max: maximum of powers
+	* @_iterationcounter: number of iterations in the fitting process
+	* @_power: list that contains the powers of the variables at the terms of the fitting function
+	* @_dsmooth_current: Storage of the dsmooth value in a certain step in order to avoid recalculation. The default value indicates an unset value.
+	*/
+	vector<double> _a, _d, _bfp, _bfperr, _sigma;
+	double _dsmooth_current = 2;
+	QRHandler _qrh;
+	GradCalc _gc;
+
+	//check for RR constraints
+	void collinearity(double threshold, double kappa);
+
+	//rescaling @_bfp because of the normalization
+	void rescaleBestFitParameters();
+	
+	//calculates the gradients of the function
+	//vector<double> gradVecFunction(Professor::ParamPoints& pts, size_t i);
+
+	//getter of a single element of the precision matrix
+	double getInvCovMatElement(size_t i, size_t j);
+	
+};
+
+#endif
+
