@@ -1,0 +1,9 @@
+
+
+#include "Professor/SimplexInterpolation.h"
+
+// ctor
+SimplexInterpolation::SimplexInterpolation( const ParamPoints& pts, 
+					    const std::vector<double>& ptvals ) :
+  points( pts ), values( ptvals ) {}
+

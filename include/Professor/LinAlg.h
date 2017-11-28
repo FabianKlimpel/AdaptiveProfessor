@@ -1,21 +1,19 @@
 #ifndef __LINALG__H
 #define __LINALG__H
 
-//~ #include <iostream>
 #include <vector>
 #include <math.h>
-
 
 using namespace std;
 
 /**
-* This Class is a container for linear algebra.
+* This Class is a container of functions related to linear algebra.
 */
 class LinAlg
 {
 public:
 
-	//extracts a coloumn of a matrix
+	//extracts a column from a matrix
 	static const vector<double> getCol(const vector<vector<double>>& mat, const size_t j);
 
 	//calculates the absolut value of a vector
@@ -24,7 +22,7 @@ public:
 	//transposes a matrix
 	static const vector<vector<double>> transpose(const vector<vector<double>>& mat);
 
-	//multiplicates a matrix and a vector
+	//multiplies a matrix and a vector
 	static const vector<double> multMatVec(const vector<vector<double>>& mat, const vector<double>& vec);
 
 	//normalizes a vector
@@ -39,10 +37,12 @@ public:
 	//solves a problem of the type matrix * vector = vector
 	static const vector<double> getBestFitParameters(const vector<vector<double>>& a, const vector<double>& x, vector<double> b);
 
+	//checks if diagonal terms of @r are too small and regulates the resulting fit
 	static void collinearity(vector<double>& a, const vector<vector<double>>& r, const vector<double>& b, const double threshold, const double kappa);
 	
 private:
 
+	//Constructor
 	LinAlg(){}
 };
 

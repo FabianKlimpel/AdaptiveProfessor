@@ -32,7 +32,7 @@ public:
 	//sums up the powers
     const int sum() const;
 
-	//getter for the powers
+	//getter of the powers
     const vector<int> data() const {return _data;}
 
 private:
@@ -40,5 +40,5 @@ private:
 	//@_data stores the powers
     int _maxval;
     vector<int> _data;
-  };
+};
 #endif

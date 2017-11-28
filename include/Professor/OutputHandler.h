@@ -21,10 +21,12 @@ class OutputHandler
 {
 public:
 
-	//Constructor that sets up some necessary parameters
-	OutputHandler(const Professor::ParamPoints& pts, const int& outdotflag, const int& summaryflag, const size_t& num_ipol);
+	//Default constructor 
 	OutputHandler();
-
+	
+	//Constructor that sets up some necessary parameters
+	OutputHandler(const Professor::ParamPoints& pts, const bool outdotflag, const bool summaryflag, const size_t& num_ipol);
+	
 	//writes a summary of the fit to the terminal
 	void writeBinResult(const size_t num_ipol, Professor::ParamPoints& pts, FitHandler& fh) const;
 
@@ -34,9 +36,10 @@ public:
 	//writes to the summaryfile
 	void writeSummary(FitHandler& fh, Professor::ParamPoints& pts) const;
 	
-	//setup for the summary file
+	//setup of the summary file
 	void setupSummary() const;
 
+	//writes a covariance matrix to file
 	void writeCovMat(const MatrixXd& mat, const size_t num_ipol) const;
 
 private:
@@ -44,7 +47,7 @@ private:
 	/**
 	 * @distances: distances of every anchor point to another
 	 */
-	vector<double> distances;
+	vector<double> _distances;
 	
 	//calculates the distances between the anchor points
 	void setDistances(const Professor::ParamPoints& pts);

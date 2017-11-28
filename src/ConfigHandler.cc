@@ -1,9 +1,9 @@
 #include "Professor/ConfigHandler.h"
 
 /**
- * Constructor that reads a config file and sets all member variables according to the setted ones
+ * Constructor that reads a config file and sets all member variables according to the file
  * @configfile: name of the config file
- * @ifile: input stream for the config file
+ * @ifile: input stream for reading the config file
  * @line: string that gets the content of a line in the configfile
  */
 ConfigHandler::ConfigHandler(const string configfile){
@@ -35,9 +35,6 @@ ConfigHandler::ConfigHandler(const string configfile){
 				if(line.substr(0, 5) == "kappa")
 					readKappa(line);
 					
-				if(line.substr(0, 8) == "exponent")
-					readExponent(line);
-					
 				if(line.substr(0, 7) == "summary")
 					readSummaryFlag(line);
 					
@@ -53,7 +50,7 @@ ConfigHandler::ConfigHandler(const string configfile){
 }
 
 /**
- * This function reads the threshold for the RR constrain of the fit
+ * This function reads the threshold of the RR constrain of the fit
  * @line: contains the threshold value
  */
 void ConfigHandler::readThresholdFit(const string line){
@@ -61,7 +58,7 @@ void ConfigHandler::readThresholdFit(const string line){
 }
 
 /**
- * This function reads the threshold for the RR constrain of the hypercube fitting
+ * This function reads the threshold of the RR constrain of the hypercube fitting
  * @line: contains the threshold value
  */
 void ConfigHandler::readThresholdData(const string line){
@@ -69,7 +66,7 @@ void ConfigHandler::readThresholdData(const string line){
 }
 
 /**
- * This function reads the threshold for the RR constrain of the error of the fit
+ * This function reads the threshold of the RR constrain of the error of the fit
  * @line: contains the threshold value
  */
 void ConfigHandler::readThresholdErr(const string line){
@@ -77,7 +74,7 @@ void ConfigHandler::readThresholdErr(const string line){
 }
 
 /**
- * This function reads the number of Chi2 values for the mean
+ * This function reads the number of Chi2 values used for the mean calculation
  * @line: contains the number of points
  */
 void ConfigHandler::readChi2Mean(const string line){
@@ -85,19 +82,11 @@ void ConfigHandler::readChi2Mean(const string line){
 }
 
 /**
- * This function reads the kappa for the RR constrain
+ * This function reads the kappa of the RR constrain
  * @line: contains the value
  */
 void ConfigHandler::readKappa(const string line){
 		_kappa = atof(line.substr(6).c_str());
-}
-
-/**
- * This function reads the exponent for the distance weighting of the hypercube fitting
- * @line: contains the exponent
- */
-void ConfigHandler::readExponent(const string line){
-		_exponent= atof(line.substr(9).c_str());	
 }
 
 /**

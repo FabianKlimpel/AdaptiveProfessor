@@ -125,15 +125,15 @@ namespace Professor {
   /////////////////////////////////////////////////////////////////////////////////////////
 	
 /**
- * This function maps the parameter points @_parampoints onto a [0,1]-hypercube and store them in @_parampoints_scaled
- * @diff: temporary storage of the difference between the maximum and minimum in every dimension
+ * This function maps the parameter points @_parampoints on a [0,1]-hypercube and stores them in @_parampoints_scaled
+ * @diff: Temporary storage of the difference between the maximum and minimum in every dimension
  */
 void ParamPoints::rescale(){
 	
-	//if the points weren't calculated yet, do it
+	//if the points were not calculated yet, do it
 	if(pointsScaled().empty())
 	{
-		//resize @_parampoints_scaled so that it can be easy set
+		//resize @_parampoints_scaled so that its values can be set easy
 		_parampoints_scaled.resize(numPoints());
 		for(size_t i = 0; i < numPoints(); i++)
 			_parampoints_scaled[i].resize(dim());
@@ -143,13 +143,16 @@ void ParamPoints::rescale(){
 		for(size_t i = 0; i < dim(); i++)
 			diff.push_back(ptmaxs()[i] - ptmins()[i]);
 		
-		//walk over every parameter set dimensionwise and rescale it onto a [0,1]-hypercube
+		//walk over every parameter set dimension-wise and rescale it on a [0,1]-hypercube
 		for(size_t i = 0; i < numPoints(); i++)
 			for(size_t j = 0; j < dim(); j++)
 				_parampoints_scaled[i][j] = (points()[i][j] - ptmins()[j]) / diff[j];	
 	}		
 }
 
+/**
+ * This function empties all lists in the object
+ */
 void ParamPoints::clearAll(){
 	_parampoints.clear();
 	_parampoints_scaled.clear();
@@ -158,13 +161,22 @@ void ParamPoints::clearAll(){
 	_pow.clearAll();
 }
 
+/**
+ * This function sets the gradient vectors of each anchor point
+ * @ptvals: Bin values
+ */
 void ParamPoints::setGradients(const vector<double> ptvals){
 	GradCalc gc;
 	HyperCubeIpol hci;
+	//walk over every anchor point and calculate the gradient vector
 	for(size_t i = 0; i < numPoints(); i++)
 		_gradients.push_back(gc.getGradVector(i, hci.getFitParams(i, points(), ptvals), *this, 1));
 }
 
+/**
+ * This function calculates the dot product of every pair of gradient vectors of the anchor points
+ * @result: storage of the resulting values of the dotproducts
+ */
 const vector<double> ParamPoints::getAllGradDotProducts() const{
 	
 	vector<double> result;
@@ -172,6 +184,7 @@ const vector<double> ParamPoints::getAllGradDotProducts() const{
 	//walk over every possible combination of anchor points
 	for(size_t i = 0; i < _gradients.size(); i++)
 		for(size_t j = 0; j < _gradients.size(); j++)
+			//do not calculate the dotproduct if the points are the same
 			if(i != j)
 				result.push_back(LinAlg::dotProduct(_gradients[i], _gradients[j]));
 	return result;

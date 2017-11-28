@@ -3,10 +3,10 @@
 using namespace std;
 
 /**
- * This function returns a coloumn of a matrix
- * @mat: matrix, out of which the coloumn will be extracted
- * @j: number of coloumn
- * @tmp: coloumn that will be returned
+ * This function returns a column of a matrix
+ * @mat: matrix, out of which the column will be extracted
+ * @j: number of column
+ * @tmp: column that will be returned
  */
 const vector<double> LinAlg::getCol(const vector<vector<double>>& mat, const size_t j){
 	vector<double> tmp;
@@ -34,8 +34,8 @@ const double LinAlg::getAbs(const vector<double>& vec){
  * @mat: matrix, that will be transposed
  * @tmp: temporary storage of the transposed matrix
  */
-const vector<vector<double> > LinAlg::transpose(const vector<vector<double>>& mat){
-	vector<vector<double> > tmp;
+const vector<vector<double>> LinAlg::transpose(const vector<vector<double>>& mat){
+	vector<vector<double>> tmp;
 	
 	//setting @tmp's size to the size of @mat
 	tmp.resize(mat[0].size());
@@ -49,7 +49,7 @@ const vector<vector<double> > LinAlg::transpose(const vector<vector<double>>& ma
 }
 
 /**
- * This function multiplicates a matrix and a vector
+ * This function multiplies a matrix and a vector
  * @mat: matrix of the product
  * @vec: vector of the product
  * @result: returned vector, represents the product of @mat and @vec
@@ -66,7 +66,7 @@ const vector<double> LinAlg::multMatVec(const vector<vector<double>>& mat, const
 		//walking over every row of @mat
 		for(size_t i = 0; i < mat.size(); i++)
 		{
-			//Walking over every coloumn of @mat at a given row and walking over every component of @vec. The product is added to @tmp
+			//Walking over every column of @mat at a given row and walking over every component of @vec. The product is added to @tmp
 			for(size_t j = 0; j < vec.size(); j++)
 				tmp += mat[i][j] * vec[j];
 
@@ -86,7 +86,7 @@ const vector<double> LinAlg::multMatVec(const vector<vector<double>>& mat, const
 const vector<double> LinAlg::normalizeVec(const vector<double>& vec){
 
 	//calculate the absolute value of @vec
-	double abs = getAbs(vec);
+	const double abs = getAbs(vec);
 	
 	//if the length of @vec is != 0, it will be normalized, else the vector itself will be returned 
 	if(abs != 0)
@@ -119,17 +119,18 @@ const double LinAlg::getDistanceOfVectors(vector<double> a, const vector<double>
 }
 
 /**
- * This function delivers the dotproduct of 2 vectors.
- * The special cases in this function are dotproduct with at least one zerovector. Algebraic, there wouldn't be any problem, but in this program it is.
- * That's because two vectors are exactly the same if they are zerovectors. That is one of the konvergence criteria.
- * Furthermore, if only one of those vectors is a zerovector, this may causes a problem in the context of similarity.
+ * This function delivers the dotproduct of two vectors.
+ * The special cases in this function are dotproduct with at least one zerovector. This causes a problem
+ * because two vectors are exactly the same if they are zerovectors. This is used as a part of the convergence criteria.
+ * In order to avoid this, the dotproduct of two zerovectors is defined as 1.
+ * Furthermore, if only one of those vectors is a zerovector, this may causes a similar problem.
  * @a, @b: vectors for the dotproduct
  * @result: result of the dotproduct
  */
 const double LinAlg::dotProduct(const vector<double>& a, const vector<double>& b){
 	
 	//the case of both vectors are zerovectors is handled by explicit definition that the dotproduct of those (normalized) vectors is 1
-	if(getAbs(a) == 0 && getAbs(b) == 0)
+	if(getAbs(a) == 0. && getAbs(b) == 0.)
 		return 1.;
 		
 	double result = 0;
@@ -142,7 +143,9 @@ const double LinAlg::dotProduct(const vector<double>& a, const vector<double>& b
 
 
 /**
- * This function solves a problem of the type A*x=b where x is a vector containing the parameters to fit
+ * This function solves a problem of the type A*x=b and finds the values of the vector x.
+ * x is passed to the function since previously set fit parameters are skipped in this function.
+ * Every parameter that is left to the estimation of its value is given as a nan.
  * @a: matrix A
  * @x: vector of parameters to fit
  * @b: vector b
@@ -159,7 +162,7 @@ const vector<double> LinAlg::getBestFitParameters(const vector<vector<double>>& 
 	{
 		//nan is an indicator in a component of @x for a component, that needs to be calculated
 		if(isnan(x[i - 1])){
-			//calculating the respective parameter
+			//calculating a fit parameter
 			result[i - 1] = b[i - 1] / a[i - 1][i - 1];
 			
 			//forward the solution to every row above the regarded one
@@ -167,7 +170,7 @@ const vector<double> LinAlg::getBestFitParameters(const vector<vector<double>>& 
 				b[j] -= a[j][i - 1] * result[i - 1];
 		}
 		else{
-			//If a values isn't nan, it was set by @collinearity(). It's value will be forwarded as above.
+			//If a values isn't nan, it was set by @LinAlg::collinearity(). It's value will be forwarded as above.
 			result[i - 1] = x[i - 1];
 			for(size_t j = 0; j < i - 1; j++)
 				b[j] -= a[j][i - 1] * result[i - 1];
@@ -176,6 +179,17 @@ const vector<double> LinAlg::getBestFitParameters(const vector<vector<double>>& 
 	return result;
 }
 
+/**
+ * This function checks, if the columns of the matrix M are collinear. If this is the case, then the diagonal terms of the matrix R would be very small.
+ * As a result of this, the corresponding fit parameters would become very big. Numerically, this leads to the situation that the fit function would only 
+ * depend on a few fit parameters. Therefore, those parameters are set in this function to avoid this behaiour.
+ * @a: Vector that is used to stores set fit parameters
+ * @r: Matrix R
+ * @b: Vector bprime
+ * @threshold: threshold for judging small values of @r on the diagonal
+ * @kappa: shift parameter in order to decrease the value of a fit parameter
+ * @riihat, @bihat: helper; Used for calculating the value of @a.
+ */
 void LinAlg::collinearity(vector<double>& a, const vector<vector<double>>& r, const vector<double>& b, const double threshold, const double kappa){
 	
 	//checking for RR constraints
@@ -185,10 +199,10 @@ void LinAlg::collinearity(vector<double>& a, const vector<vector<double>>& r, co
 		//check if the value in @r is small
 		if(fabs(r[i][i]) < threshold)
 		{
-			//setting the helpervariables for the creation of a smaller @a than one would get if the fit would run normally.
-			//the shift has it's source in @kappa and the according term of @_d.
-			double riihat = sqrt(r[i][i] * r[i][i] + kappa);
-			double bihat = (r[i][i] / riihat) * b[i];
+			//Setting the helpervariables for the creation of a smaller @a than one would get if the fit would run normally.
+			//The shift has it's source in @kappa and the according term of @_d.
+			const double riihat = sqrt(r[i][i] * r[i][i] + kappa);
+			const double bihat = (r[i][i] / riihat) * b[i];
 			a[i] = bihat / riihat;
 		}
 	}

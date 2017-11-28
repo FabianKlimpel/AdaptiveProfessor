@@ -6,7 +6,7 @@ Counter::~Counter(void) { }
 /**
  * This function calculates a new step in order to calculate the powers for a monomial.
  * The idea is a list of powers, starting at [0, 0, ... ,0], that will be increased in every step
- * until it fits the needed order. Starting with the last, we increase one index by 1.
+ * until it fits the needed order. Starting with the last index, the value of an index gets increased by 1.
  * If the index is at the maximum, it will be resetted to 0 and the next index will be increased
  * in a recursive way.
  * That way, every possible combination of powers in a certain order can be calculated.
@@ -15,7 +15,7 @@ Counter::~Counter(void) { }
 const bool Counter::next(const int index) {
 	//if the index is at the maximum...
 	if (_data[index] == _maxval) {
-		//if the first index is at his maximum, the function returns false as a break for loops
+		//if the first index is at his maximum, the function returns false in order to break an outer for-loop
 		//this condition means that every combination was created
 		if(index == 0) return false;
 		//...the index will be resetted and the next index will be calculated
@@ -24,7 +24,7 @@ const bool Counter::next(const int index) {
 	}
 	else {
 		//If the entry is smaller than the maximum, it will be increased.
-		//the return value is a continuitation of a loop
+		//the return value is meant as continuitation of an outer for-loop
 		_data[index]++;
 		return true;
 	}

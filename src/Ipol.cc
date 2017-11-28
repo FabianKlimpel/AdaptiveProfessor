@@ -371,8 +371,6 @@ const bool Ipol::iterate(FitHandler& fh, ParamPoints& pts, ConfigHandler* const 
 	//iterate
 	fh.nextStep(pts, ch->getThresholdFit(), ch->getKappa());
 	
-	cout << "Current Chi^2: " << fh.getChi2();
-	cout << "\tCurrent D_{smooth}: " << fh.getDsmooth(pts) << endl;
 	//store quality parameter
 	qp.iteration_results.push_back(fh.getChi2() * (1 - fh.getDsmooth(pts)) / (1 + fh.getDsmooth(pts)));
 	
@@ -399,11 +397,16 @@ const bool Ipol::iterate(FitHandler& fh, ParamPoints& pts, ConfigHandler* const 
 		qp.bestF = qp.iteration_results.back();
 		qp.bestiteration = fh.getIterationCounter();
 	}
-	cout << "Current value:\t" << qp.iteration_results.back() << endl;
+
 	return true;
 }
 
-
+/**
+ * This function sets the member parameters such that Professor can work without additional interfaces
+ * @pts: Anchor points
+ * @fh: Object that handles the interpolation
+ * @match_index: List of indices; Used for re-ordering the fit parameters to fit Professor 2.2.1's order
+ */
 void Ipol::setparams(ParamPoints& pts, FitHandler& fh){
 	
 	_dim = pts.dim();	
@@ -412,6 +415,7 @@ void Ipol::setparams(ParamPoints& pts, FitHandler& fh){
 	_name = "";
 	_order = fh.getMaxPower();
 	
+	//sort fit parameters
 	std::vector<int> match_index = sort_strucs(pts);
 	fh.sortFitParams(match_index);	
 	match_index.clear();
@@ -421,10 +425,10 @@ void Ipol::setparams(ParamPoints& pts, FitHandler& fh){
 }
 
 /**
- * This function performs a mapping of the order of terms of the fit parameters during the fitting and the structure, that Professor 2.2.1 wants.
- * @pts: container of the anchor points
- * @profstruc: the structure that Professor 2.2.1 wants
- * @result: list of mapping numbers for later usage
+ * This function performs a re-ordering of the order of the fit parameters in order to fit Professor 2.2.1's order.
+ * @pts: Anchor points
+ * @profstruc: The structure of the fit parameters of Professor 2.2.1
+ * @result: List of mapping numbers for later usage
  */
 const std::vector<int> Ipol::sort_strucs(ParamPoints& pts) const{
 

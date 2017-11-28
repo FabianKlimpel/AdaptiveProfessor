@@ -2,14 +2,16 @@
 
 /**
  * Constructor
+ * This constructor is used for an interpolation
  */
 FitHandler::FitHandler(){}
 
 /**
- * Main constructor.
- * @fitparams: vector containing the fitparameters
- * @pterrs: vector containing the uncertainties of the data
- * @pts: Object containing everything about the anchor points
+ * Constructor
+ * This constructor is used for the calculation of the uncertainty of the fit parameters of a previously performed fit
+ * @fitparams: vector that contains the fitparameters
+ * @pterrs: vector that contains the uncertainties of the data
+ * @pts: Object that contains every information about the anchor points
  * @order: order of the polynomial function
  * @num_ipol: bin number
  */
@@ -25,11 +27,9 @@ FitHandler::FitHandler(const vector<double>& fitparams, const vector<double>& pt
 }
 
 /**
- * This function rescales the best fit parameters due to normalization of @_m and @_b
- * @vec: vector, containing the best fit parameters
+ * This function rescales the best fit parameters caused by the normalization of @_m and @_b
  */
 void FitHandler::rescaleBestFitParameters(){
-
 	//backwards calculating of the norms that influenzed @_m and @_b in order to get the regular best fit parameters
 	for(size_t i = 0; i < _bfp.size(); i++)
 		_bfp[i] *= LinAlg::getAbs(_qrh.getB()) / LinAlg::getAbs(LinAlg::getCol(_qrh.getM(), i));
@@ -43,28 +43,25 @@ void FitHandler::rescaleBestFitParameters(){
 const double FitHandler::getChi2() const{
 
 	double result = 0, functionvalue = 0;
-	cout << "sizes: " << _qrh.getM().size() << "\t" << _qrh.getB().size() << endl;
 	//walk over every polynomial
 	for(size_t i = 0; i < _qrh.getM().size(); i++)
 	{
 		//if the bin entry is 0, it can be a simple misscalculation in Rivet etc.
 		if(_qrh.getB()[i] == 0)
 			continue;
-		cout << "sizes2: " << _qrh.getM()[i].size() << "\t" << _bfp.size() << endl;
+		
 		for(size_t j = 0; j < _qrh.getM()[i].size(); j++)
 			functionvalue += _qrh.getM()[i][j] * _bfp[j];
 			
 		//get the difference between the functionvalue and the datapoint		
 		functionvalue -= _qrh.getB()[i];
-		cout << "functionvalue: " << functionvalue << endl;
+		
 		//if the uncertainty is 0, the calculation would rise a nan
 		//this is prevented by setting it to the arbitrary value of 1e-10
 		if(_sigma[i] == 0)
 			result += (functionvalue * functionvalue) / (1e-10 * 1e-10);
 		else
 			result += (functionvalue * functionvalue) / (_sigma[i] * _sigma[i]);
-
-		cout << "result: " << result << endl;
 		functionvalue = 0;
 	}
 	return result;
@@ -72,13 +69,12 @@ const double FitHandler::getChi2() const{
 
 /**
  * This function returns Dsmooth
- * @pts: container for the anchor points
- * @gh: container of the gradient vectors of the anchor points
+ * @pts: container of the anchor points
  * @result: result of the calculation that will be returned
  */
 const double FitHandler::getDsmooth(Professor::ParamPoints& pts){
 
-	//if the smoothness was not calculated in the iteration ...
+	//check, if the smoothness was already calculated within this iteration
 	if(_dsmooth_current == 2)
 	{
 		double result = 0;
@@ -95,11 +91,11 @@ const double FitHandler::getDsmooth(Professor::ParamPoints& pts){
  * This function calculates the uncertainty of the fit parameters.
  * @num_ipol: number of the bin
  * @mat: storage of the precision matrix, later of the covariance matrix
- * @tmp: temporary storage of precision matrix elements
+ * @tmp: temporary storage of the elements of the precision matrix
+ * @oh: object that handles the writing of the result to file
  */
 void FitHandler::setFitErrors(const size_t num_ipol){
 
-	//setting up variables
 	MatrixXd mat(_bfp.size(), _bfp.size());
 	double tmp;
 	//fill the matrix; walking over the upper triangle
@@ -118,11 +114,10 @@ void FitHandler::setFitErrors(const size_t num_ipol){
 				mat(col, row) = tmp;
 			}
 		}
-
 	//calculating the inverse of the matrix
 	mat = mat.fullPivHouseholderQr().inverse();
 
-	//If an element is +/-infinity, it will be set to the maximum of double instead. That way one keeps regular numerical eleements
+	//if an element is +/-infinity, it will be set to the maximum/minimum of double instead
 	for(size_t i = 0; i < _bfp.size(); i++)
 		if(mat(i, i) == std::numeric_limits<double>::infinity())
 			_bfperr.push_back(std::numeric_limits<double>::max());
@@ -139,8 +134,8 @@ void FitHandler::setFitErrors(const size_t num_ipol){
 
 /**
  * This function calculates an element of the precision matrix
- * @i, @j: row/coloumn of the matrix
- * @resulg: numerical value of the matrix element
+ * @i, @j: row/column of the matrix
+ * @result: value of the matrix element
  */
 const double FitHandler::getInvCovMatElement(const size_t i, const size_t j) const{
 	double result = 0;
@@ -158,9 +153,9 @@ const double FitHandler::getInvCovMatElement(const size_t i, const size_t j) con
 }
 
 /**
- * This function calculates the next iterationstep in a bin
+ * This function calculates the next iteration in a bin
  * @pts: container of the anchor points
- * @threshold: threshold for the RR constraint of the fit
+ * @threshold: threshold of the RR constraint of the fit
  * @kappa: shift in case of applied RR constraint
  */
 void FitHandler::nextStep(Professor::ParamPoints& pts, const double threshold, const double kappa){
@@ -169,42 +164,28 @@ void FitHandler::nextStep(Professor::ParamPoints& pts, const double threshold, c
 	//reset the smoothness, so that will be calculated again
 	_dsmooth_current = 2;
 	
+	//perform the iteration
 	_qrh.iterate(pts);
 	_a.resize(_qrh.getM()[0].size());
 	LinAlg::collinearity(_a, _qrh.getR(), _qrh.getB(), threshold, kappa);
-
-	cout << "_a: ";
-	for(size_t i = 0; i < _a.size(); i++)
-		cout << _a[i] << "\t";
-	cout << endl;
 	
 	//getting the fit and rescale it
 	_bfp = LinAlg::getBestFitParameters(_qrh.getR(), _a, _qrh.getBprime());	
 	
-	cout << "_bfp: ";
-	for(size_t i = 0; i < _bfp.size(); i++)
-		cout << _bfp[i] << "\t";
-	cout << endl;
-	
 	rescaleBestFitParameters();
-	
-	cout << "rescaled _bfp: ";
-	for(size_t i = 0; i < _bfp.size(); i++)
-		cout << _bfp[i] << "\t";
-	cout << endl;
 }
 
 /**
- * This function sets up the object for a new bin
+ * This function sets initializes the object for a new bin
  * @pts: container of the anchor points
- * @ptvals: bin values for each anchor point
- * @pterrs: error of the bin values for each anchor point
+ * @ptvals: bin values of each anchor point
+ * @pterrs: uncertainty of the bin values of each anchor point
  * @num_ipol: number of the bin
- * @threshold: threshold for the RR constraint of the fit
+ * @threshold: threshold of the RR constraint of the fit
  * @kappa: shift in case of applied RR constraint
  */
 void FitHandler::startBin(Professor::ParamPoints& pts, const vector<double>& ptvals, const vector<double>& pterrs, const double threshold, const double kappa){
-
+	//set up object + 1st iteration
 	_sigma = pterrs;
 	_qrh.init(pts, ptvals);
 	_a.resize(_qrh.getM()[0].size());
@@ -217,7 +198,7 @@ void FitHandler::startBin(Professor::ParamPoints& pts, const vector<double>& ptv
 }
 
 /**
- * This function is a getter for the size of @_bfp
+ * This function is a getter of the number of fit parameters
  * @zeros: counter of 0's as fit parameters
  */
 const size_t FitHandler::getNumFitParams() const{
@@ -237,15 +218,16 @@ const size_t FitHandler::getNumFitParams() const{
 /**
  * This function sets the object up for a certain bin and calculates a given number of iterations
  * @pts: container of the anchor points
- * @ptvals: bin values for each anchor point
- * @pterrs: error of the bin values for each anchor point
+ * @ptvals: bin values of each anchor point
+ * @pterrs: error of the bin values of each anchor point
  * @num_ipol: number of the bin
- * @threshold: threshold for the RR constraint of the fit
- * @kappa: shift in case of applied RR constraint
+ * @threshold: threshold of the RR constraint of the fit
+ * @kappa: shift in case of an applied RR constraint
  * @bestiteration: number of iterations that will be performed
  */
 void FitHandler::setToIteration(Professor::ParamPoints& pts, const vector<double>& ptvals, const vector<double>& pterrs, const int num_ipol, const double threshold, const double kappa, const int bestiteration){
 
+	//reset
 	_bfp.clear();
 	_bfperr.clear();
 	_qrh.reset();
@@ -265,9 +247,8 @@ void FitHandler::setToIteration(Professor::ParamPoints& pts, const vector<double
 }
 
 /**
- * This function calculates the dot product of all normalized gradients at every anchor point with every other
- * @pts: container for the anchor points
- * @gh: container of the gradient vectors of the anchor points
+ * This function calculates the dot product of all normalized gradients at each anchor point with each other
+ * @pts: container of the anchor points
  * @result: vector containing all dot products
  * @tmp: temporary storage of the gradient vectors
  */
@@ -297,7 +278,7 @@ const vector<double> FitHandler::getAllGradDotProducts(Professor::ParamPoints& p
 }
 
 /**
- * This function adds 0's to the list of fit parameters and their errors in order to fill up a certain order. Afterwards, the parameters will be reordered for Professor 2.2.1 usage.
+ * This function adds 0's to the list of fit parameters and their uncertainties in order to fill up a certain order. Afterwards, the parameters will be reordered for Professor 2.2.1 usage.
  * That is needed in order to become usable for Professor 2.2.1.
  * @match_index: mapping list that connects the current order to the order needed by Professor 2.2.1
  * @bfp_sorted, @bfperr_sorted: helper to store the new ordering 

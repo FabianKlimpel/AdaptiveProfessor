@@ -6,7 +6,7 @@
  * @order: order up to which the powers will be calculated
  * @tmp_power: temporary storage for the new list of powers until it will be added to @_powerlist
  * @zero: list of 0's as the 0th order of powers
- * @c: object that delivers the powers for monomials
+ * @c: object that delivers the powers of the monomials
  */
 void Power::setPowerOfOrder(const int order){
 	vector<vector<int>> tmp_power;
@@ -19,7 +19,7 @@ void Power::setPowerOfOrder(const int order){
 	//loop up to the maximum order
 	for (int i = 0; i <= order; ++i) 
 	{
-		//create a @Counter object for the order @i
+		//create a @Counter object of the order @i
 		Counter c(n, i);
 		
 		//calculate every combination of powers
@@ -34,8 +34,8 @@ void Power::setPowerOfOrder(const int order){
 
 /**
  * This function is a getter for the list of powers of a given order.
- * If the order isn't calculated yet, it will be calculated within this function.
- * @order: order of the polynom
+ * If the order isn't calculated yet, it will be calculated in this function.
+ * @order: order of the polynomial
  */
 const vector<vector<int>> Power::getPowerOfOrder(const int order){
 

@@ -127,33 +127,32 @@ namespace Professor {
     /// @todo Generalise to other sorts of key lookup? Needed? Bounds checking / checking key existence
     const std::vector<double>& point(size_t i) const { return points().at(i); }
 
-    // Getter of @_parampoints_scaled
-    const std::vector<std::vector<double>>& pointsScaled() const { return _parampoints_scaled;}
-
-    // Getter of point @i out of @_parampoints_scaled
-    const std::vector<double>& pointScaled(const size_t i) const { return pointsScaled().at(i); }
     
     // This function rescales @_parampoints and stores them in @_parampoints_scaled
     void rescale();
-
-    // This function gets the list of powers for every parameter in every term of the polynomial function at given order @order
-    const std::vector<std::vector<int>> getPower(const int order) {return _pow.getPowerOfOrder(order);}
-
-    // Getter of @_pow
-    const Power& getPow() const {return _pow;}
-
+	
+	//deletes all information that are not necessary to store after the fitting
     void clearAll();
 
-	void setGradients(const std::vector<double> ptvals);
+    //Getter
+    const std::vector<std::vector<int>> getPower(const int order) {return _pow.getPowerOfOrder(order);}
+    const Power& getPow() const {return _pow;}
+    const std::vector<std::vector<double>>& pointsScaled() const { return _parampoints_scaled;}
+    const std::vector<double>& pointScaled(const size_t i) const { return pointsScaled().at(i); }
 	const vector<double>& getGradient(const size_t i) {return _gradients[i];}
 	const vector<double> getAllGradDotProducts() const;
+	
+	//Setter
 	void setpointsScaled(const std::vector<std::vector<double>>& vec) {_parampoints_scaled = vec;}
-
+	void setGradients(const std::vector<double> ptvals);
+	
 private:
 
-	void buildHyperCube(const size_t i);
-
-    // parameter and scaled parameter values
+	/**
+	 * @_parampoints: anchor points
+	 * @_parampoints_scaled: scaled @_parampoints onto [0,1]-interval
+	 * @_gradients: gradient vectors at @_parampoints
+	 */
     std::vector< std::vector<double> > _parampoints, _parampoints_scaled, _gradients;
 
     std::vector< std::string > _names;

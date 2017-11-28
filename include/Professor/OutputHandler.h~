@@ -6,9 +6,7 @@
 #include <fstream>
 #include "Professor/LinAlg.h"
 #include "Professor/ParamPoints.h"
-#include "Professor/GradHandler.h"
 #include "Professor/FitHandler.h"
-#include "Professor/ConfigHandler.h"
 #include <Eigen/Dense>
 
 using namespace std;
@@ -23,24 +21,26 @@ class OutputHandler
 {
 public:
 
+	//Default constructor 
+	OutputHandler();
+	
 	//Constructor that sets up some necessary parameters
 	OutputHandler(const Professor::ParamPoints& pts, const int& outdotflag, const int& summaryflag, const size_t& num_ipol);
-	OutputHandler();
-
+	
 	//writes a summary of the fit to the terminal
-	void write_binresult(size_t num_ipol, Professor::ParamPoints& pts, FitHandler& fh);
+	void writeBinResult(const size_t num_ipol, Professor::ParamPoints& pts, FitHandler& fh) const;
 
 	//writes a dotproduct-summary
-	void write_dotproduct(size_t num_ipol, Professor::ParamPoints& pts, GradHandler& gh, FitHandler& fh);
+	void writeDotProduct(const size_t num_ipol, Professor::ParamPoints& pts, FitHandler& fh) const;
 
 	//writes to the summaryfile
-	void write_summary(FitHandler& fh, Professor::ParamPoints& pts);
+	void writeSummary(FitHandler& fh, Professor::ParamPoints& pts) const;
 	
-	//setup for the summary file
-	void setup_summary();
+	//setup of the summary file
+	void setupSummary() const;
 
-	//void write_covmat(TMatrixDSym& tmds, size_t num_ipol);
-	void write_covmat(MatrixXd& mat, size_t num_ipol);
+	//writes a covariance matrix to file
+	void writeCovMat(const MatrixXd& mat, const size_t num_ipol) const;
 
 private:
 

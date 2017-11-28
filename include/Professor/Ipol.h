@@ -209,6 +209,7 @@ namespace Professor {
     std::string _name;
     std::vector<double> _coeffs, _minPV, _maxPV;
 
+	//Structure that stores parameters that state the fit quality. This is necessary for a cut-off of the iterations
 	struct qualityparams{
 		size_t bestiteration;
 		double bestF;
@@ -216,7 +217,10 @@ namespace Professor {
 		vector<double> iteration_results;
 	};
 	
+	//Setter of parameters that are needed by Professor
 	void setparams(ParamPoints& pts, FitHandler& fh);
+	
+	//Function that performs an iteration of the adaptive interpolation
 	const bool iterate(FitHandler& fh, ParamPoints& pts, ConfigHandler* const ch, qualityparams& qp) const;
 	
     //mapping function of the fit parameter terms in order to use them with Professor 2.2.1
@@ -227,7 +231,6 @@ namespace Professor {
 
     //function that actually performs the error calculation of the fit
     void calcerr(ParamPoints& pts, const std::vector<double>& pterrs, const int order, const std::vector<double>& fitparams, const int num_ipol);
-
   };
 
 
