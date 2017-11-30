@@ -15,7 +15,7 @@ FitHandler::FitHandler(){}
  * @order: order of the polynomial function
  * @num_ipol: bin number
  */
-FitHandler::FitHandler(const vector<double>& fitparams, const vector<double>& pterrs, Professor::ParamPoints& pts, const int order, const int num_ipol){
+FitHandler::FitHandler(const vector<double>& fitparams, const vector<double>& pterrs, Professor::ParamPoints& pts, const int order, const int num_ipol, const string histname){
 
 	//local storage of parameters
 	_bfp = fitparams;
@@ -23,7 +23,7 @@ FitHandler::FitHandler(const vector<double>& fitparams, const vector<double>& pt
 	_qrh.load(order, pts, getNumFitParams());
 
 	//calculate the fit errors
-	setFitErrors(num_ipol);
+	setFitErrors(num_ipol, histname);
 	_bfp = _bfperr;
 	_bfperr.clear();
 }
@@ -96,7 +96,7 @@ const double FitHandler::getDsmooth(Professor::ParamPoints& pts){
  * @tmp: temporary storage of the elements of the precision matrix
  * @oh: object that handles the writing of the result to file
  */
-void FitHandler::setFitErrors(const size_t num_ipol){
+void FitHandler::setFitErrors(const size_t num_ipol, const string histname){
 
 	MatrixXd mat(_bfp.size(), _bfp.size());
 	double tmp;
@@ -132,7 +132,7 @@ void FitHandler::setFitErrors(const size_t num_ipol){
 	
 	//writing the covariance matrix to file
 	OutputHandler oh;
-	oh.writeCovMat(mat, num_ipol);
+	oh.writeCovMat(mat, num_ipol, histname);
 }
 
 /**

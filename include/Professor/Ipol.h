@@ -106,7 +106,7 @@ namespace Professor {
     };
  
     //modified constructor for the iterative fitting
-    Ipol(ParamPoints& pts, const std::vector<double>& ptvals, const vector<double>& pterrs, const int num_ipol, const bool doipol, const int order, const std::vector<double>& fitparams, const string configfile);
+    Ipol(ParamPoints& pts, const std::vector<double>& ptvals, const vector<double>& pterrs, const int num_ipol, const string histname, const bool doipol, const int order, const std::vector<double>& fitparams, const string configfile);
 
     /// Constructor to read ipol from file (one string for each object)
     /// @todo Also allow optional passing of pmins, pmaxs vectors for the case where the string includes scaling?
@@ -227,10 +227,10 @@ namespace Professor {
     const std::vector<int> sort_strucs(ParamPoints& pts) const;
     
     //function that actually performs the fit
-    void calcipol(ParamPoints& pts, const std::vector<double>& ptvals, const std::vector<double>& pterrs, const int num_ipol, const std::string configfile);
+    void calcipol(ParamPoints& pts, const std::vector<double>& ptvals, const std::vector<double>& pterrs, const int num_ipol, const std::string configfile, const std::string histname);
 
     //function that actually performs the error calculation of the fit
-    void calcerr(ParamPoints& pts, const std::vector<double>& pterrs, const int order, const std::vector<double>& fitparams, const int num_ipol);
+    void calcerr(ParamPoints& pts, const std::vector<double>& pterrs, const int order, const std::vector<double>& fitparams, const int num_ipol, const std::string histname);
   };
 
 

@@ -49,11 +49,12 @@ cdef class Ipol:
             if order < 0:
                 errs = list(args[3])
                 bin_num = int(args[4])
-                doipol = bool(args[5])
-                order = int(args[6])
-                fitparams = list(args[7])
-                config = str(args[8])
-                self._ptr = new c.Ipol(deref(pp._ptr), vals, errs, bin_num, doipol, order, fitparams, config)
+                histname = str(args[5])
+                doipol = bool(args[6])
+                order = int(args[7])
+                fitparams = list(args[8])
+                config = str(args[9])
+                self._ptr = new c.Ipol(deref(pp._ptr), vals, errs, bin_num, histname, doipol, order, fitparams, config)
             else:
                 name = ""
                 threshold = 1e-15 #< ???

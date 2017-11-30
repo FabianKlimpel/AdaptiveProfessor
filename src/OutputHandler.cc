@@ -130,10 +130,10 @@ void OutputHandler::writeSummary(FitHandler& fh, Professor::ParamPoints& pts) co
  * @num_ipol: Bin number
  * @outcovmat: Provides the output to file functionality 
  */
-void OutputHandler::writeCovMat(const MatrixXd& mat, const size_t num_ipol) const{
+void OutputHandler::writeCovMat(const MatrixXd& mat, const size_t num_ipol, const string histname) const{
 	//open the file
 	ofstream outcovmat;
-	outcovmat.open(("covmat_" + to_string(num_ipol)).c_str());
+	outcovmat.open((histname + to_string(num_ipol)).c_str());
 	
 	//write the matrix
 	for(size_t row = 0; row < (size_t) mat.rows(); row++)

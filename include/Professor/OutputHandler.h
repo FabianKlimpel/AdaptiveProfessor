@@ -40,7 +40,7 @@ public:
 	void setupSummary() const;
 
 	//writes a covariance matrix to file
-	void writeCovMat(const MatrixXd& mat, const size_t num_ipol) const;
+	void writeCovMat(const MatrixXd& mat, const size_t num_ipol, const string histname) const;
 
 private:
 

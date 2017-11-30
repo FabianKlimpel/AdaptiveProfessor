@@ -293,16 +293,16 @@ namespace Professor {
  * @fitparams: If a fit function is already calculated, this parameter represents the fit parameters for an uncertainty calculation
  * @configfile: Path to a file that contains additional configuration information
  */
-Ipol::Ipol(ParamPoints& pts, const std::vector<double>& ptvals, const vector<double>& pterrs, const int num_ipol, const bool doipol, const int order, const std::vector<double>& fitparams, const string configfile){
+Ipol::Ipol(ParamPoints& pts, const std::vector<double>& ptvals, const vector<double>& pterrs, const int num_ipol, const string histname, const bool doipol, const int order, const std::vector<double>& fitparams, const string configfile){
 	
 	//rescale parameter ranges
 	pts.rescale();
 	
 	//either perform an interpolation or an uncertainty calculation
 	if(doipol)
-		calcipol(pts, ptvals, pterrs, num_ipol, configfile);
+		calcipol(pts, ptvals, pterrs, num_ipol, configfile, histname);
 	else
-		calcerr(pts, pterrs, order, fitparams, num_ipol);
+		calcerr(pts, pterrs, order, fitparams, num_ipol, histname);
 	
 	//clean memory
 	pts.clearAll();
@@ -320,9 +320,9 @@ Ipol::Ipol(ParamPoints& pts, const std::vector<double>& ptvals, const vector<dou
  * @fh: Object that handles the interpolation
  * @qp: Structure that stores the last couple quality parameters and tracks the currently best iteration
  */ 
-void Ipol::calcipol(ParamPoints& pts, const std::vector<double>& ptvals, const std::vector<double>& pterrs, const int num_ipol, const std::string configfile) {
+void Ipol::calcipol(ParamPoints& pts, const std::vector<double>& ptvals, const std::vector<double>& pterrs, const int num_ipol, const std::string configfile, const std::string histname) {
 
-	cout << "start with bin " << num_ipol << endl;
+	cout << "start with bin " << num_ipol << " in " << histname << endl;
 		
 	//Crate and initialize objects
 	ConfigHandler* ch = new ConfigHandler(configfile);
@@ -340,7 +340,7 @@ void Ipol::calcipol(ParamPoints& pts, const std::vector<double>& ptvals, const s
 	//continuously iterate while a fit becomes better with more iterations
 	while(iterate(fh, pts, ch, qp)){}
 
-	cout << "fit complete for bin " << num_ipol << endl;
+	cout << "fit complete for bin " << num_ipol << " in " << histname << endl;
 	
 	//recalculate the best iteration
 	fh.setToIteration(pts, ptvals, pterrs, num_ipol, ch->getThresholdFit(), ch->getKappa(), qp.bestiteration);			
@@ -444,14 +444,14 @@ const std::vector<int> Ipol::sort_strucs(ParamPoints& pts) const{
 	return result;	
 }
 
-void Ipol::calcerr(ParamPoints& pts, const std::vector<double>& pterrs, const int order, const std::vector<double>& fitparams, const int num_ipol){
+void Ipol::calcerr(ParamPoints& pts, const std::vector<double>& pterrs, const int order, const std::vector<double>& fitparams, const int num_ipol, const string histname){
 
-	std::cout << "calculating error for bin " << num_ipol << endl;
+	std::cout << "calculating error for bin " << num_ipol << " in " << histname << endl;
 		
-	FitHandler fh(fitparams, pterrs, pts, order, num_ipol);
+	FitHandler fh(fitparams, pterrs, pts, order, num_ipol, histname);
 	setparams(pts, fh);
 	
-	cout << "error calculation complete for bin " << num_ipol << endl;
+	cout << "error calculation complete for bin " << num_ipol << " in " << histname << endl;
 }
 
   ///////////////////////////////////////////////////////

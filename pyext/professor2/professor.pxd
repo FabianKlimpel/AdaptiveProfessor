@@ -20,7 +20,7 @@ cdef extern from "Professor/Ipol.h" namespace "Professor":
     cdef cppclass Ipol:
 
         Ipol(const ParamPoints&, const vector[double]&, int, const string&, double, bool) except +
-        Ipol(ParamPoints&, const vector[double]&, const vector[double]&, int&, bool, int&, vector[double]&, const string&) except +
+        Ipol(ParamPoints&, const vector[double]&, const vector[double]&, int&, const string&, bool, int&, vector[double]&, const string&) except +
         Ipol(const string&) except +
         #Ipol(ParamPoints&, const vector[double]&, const vector[double]&, int&, const string&) except +
         #Ipol(const ParamPoints&, const vector[double]&, int&, int&, int&, const string&, int&) except +

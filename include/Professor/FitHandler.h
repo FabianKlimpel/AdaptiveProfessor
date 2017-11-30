@@ -24,13 +24,13 @@ public:
 	FitHandler();
 
 	//Constructor used for uncertainty calculation
-	FitHandler(const vector<double>& fitparams, const vector<double>& pterrs, Professor::ParamPoints& pts, const int order, const int num_ipol);
+	FitHandler(const vector<double>& fitparams, const vector<double>& pterrs, Professor::ParamPoints& pts, const int order, const int num_ipol, const string histname);
 
 	//calculates the next iterationstep
 	void nextStep(Professor::ParamPoints& pts, const double threshold, const double kappa);
 
 	//calculator of fit uncertainties
-	void setFitErrors(size_t num_ipol);
+	void setFitErrors(const size_t num_ipol, const string histname);
 
 	//getter of the smoothness
 	const double getDsmooth(Professor::ParamPoints& pts);
