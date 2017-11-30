@@ -134,11 +134,11 @@ namespace Professor {
 	//deletes all information that are not necessary to store after the fitting
     void clearAll();
 
-    //Getter
-    const std::vector<std::vector<int>> getPower(const int order) {return _pow.getPowerOfOrder(order);}
-    const Power& getPow() const {return _pow;}
-    const std::vector<std::vector<double>>& pointsScaled() const { return _parampoints_scaled;}
-    const std::vector<double>& pointScaled(const size_t i) const { return pointsScaled().at(i); }
+    	//Getter
+    	const std::vector<std::vector<int>> getPower(const int order) {return _pow.getPowerOfOrder(order);}
+    	const Power& getPow() const {return _pow;}
+    	const std::vector<std::vector<double>>& pointsScaled() const { return _parampoints_scaled;}
+    	const std::vector<double>& pointScaled(const size_t i) const { return pointsScaled().at(i); }
 	const vector<double>& getGradient(const size_t i) {return _gradients[i];}
 	const vector<double> getAllGradDotProducts() const;
 	

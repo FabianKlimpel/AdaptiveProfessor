@@ -7,7 +7,6 @@
 #include <vector>
 #include <cassert>
 #include <stdexcept>
-#include "Professor/LinAlg.h"
 #include "Professor/Power.h"
 #include "Professor/HyperCubeIpol.h"
 #include "Professor/GradCalc.h"
@@ -128,51 +127,32 @@ namespace Professor {
     /// @todo Generalise to other sorts of key lookup? Needed? Bounds checking / checking key existence
     const std::vector<double>& point(size_t i) const { return points().at(i); }
 
-    // Setter for the indices referring to a hypercube surrounding a point with index @i
-    //std::vector< size_t>& gethypercube(size_t i);
-
-    // Getter of @_hypercubes
-    //std::vector< std::vector<size_t>>& hypercubes() {return _hypercubes;}
-
-    // Getter of @_structure
-    //std::vector< std::vector< std::vector<double>>>& structure() {return _structure;}
-
-    // This function adds vectors to @_structure
-    //void setstructure(size_t i, size_t j, std::vector<double> vec);
-
-    // Getter of @_parampoints_scaled
-    const std::vector<std::vector<double>>& points_scaled() const { return _parampoints_scaled;}
-
-    // Getter of point @i out of @_parampoints_scaled
-    const std::vector<double>& point_scaled(size_t i) const { return points_scaled().at(i); }
     
     // This function rescales @_parampoints and stores them in @_parampoints_scaled
     void rescale();
+	
+	//deletes all information that are not necessary to store after the fitting
+    void clearAll();
 
-    // This function gets the list of powers for every parameter in every term of the polynomial function at given order @order
-    std::vector<std::vector<int>> getpower(int order) {return _pow.getpoweroforder(order);}
+    //Getter
+    const std::vector<std::vector<int>> getPower(const int order) {return _pow.getPowerOfOrder(order);}
+    const Power& getPow() const {return _pow;}
+    const std::vector<std::vector<double>>& pointsScaled() const { return _parampoints_scaled;}
+    const std::vector<double>& pointScaled(const size_t i) const { return pointsScaled().at(i); }
+	const vector<double>& getGradient(const size_t i) {return _gradients[i];}
+	const vector<double> getAllGradDotProducts() const;
+	
+	//Setter
+	void setpointsScaled(const std::vector<std::vector<double>>& vec) {_parampoints_scaled = vec;}
+	void setGradients(const std::vector<double> ptvals);
+	
+private:
 
-    // Getter of @_pow
-    const Power& getpow() {return _pow;}
-
-    void clearall();
-
-	//std::vector<double> getGradVector(const size_t i, const std::vector<double>& bfp, const std::vector<std::vector<int>>& powers);
-	void setGradients(vector<double> ptvals);
-	const vector<double> getGradient(size_t i) {return _gradients[i];}
-	const vector<double> getAllGradDotProducts();
-	void setpoints_scaled(const std::vector<std::vector<double>>& vec) {_parampoints_scaled = vec;}
-  private:
-
-	//void initStructure();
-	//double extendStructure(const size_t i, const size_t j, const size_t numFitParams, const std::vector<std::vector<int>>& powers);
-	//double addMonomial(const size_t i, const size_t j, const size_t k, const std::vector<std::vector<int>>& powers);
-	void buildHyperCube(const size_t i);
-
-    // structure of the powers of the gradient vectors of the polynomial function
-    //std::vector< std::vector< std::vector<double>>> _structure;
-
-    // parameter and scaled parameter values
+	/**
+	 * @_parampoints: anchor points
+	 * @_parampoints_scaled: scaled @_parampoints onto [0,1]-interval
+	 * @_gradients: gradient vectors at @_parampoints
+	 */
     std::vector< std::vector<double> > _parampoints, _parampoints_scaled, _gradients;
 
     std::vector< std::string > _names;

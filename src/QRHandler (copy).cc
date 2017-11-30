@@ -11,7 +11,10 @@ void QRHandler::init(Professor::ParamPoints& pts, const vector<double>& ptvals){
 	_b = ptvals;
 	_power = pts.getPower(0);
 	//setting up the matrices and iterate
-	iterate(pts);		
+	increaseM(pts);
+	makeMprime();
+	initQR();
+	iterateb();		
 }
 
 /**
@@ -20,10 +23,6 @@ void QRHandler::init(Professor::ParamPoints& pts, const vector<double>& ptvals){
  */
 void QRHandler::iterateM(Professor::ParamPoints& pts){
 	
-	//set the size of @_m, if not done yet
-	if(_m.empty())
-		_m.resize(pts.numPoints());
-		
 	//if every power in @_power is already in use in @_m, new components of a higher power need to be calculated
 	if(_m[0].size() == _power.size())
 	{
@@ -33,9 +32,9 @@ void QRHandler::iterateM(Professor::ParamPoints& pts){
 	}
 	//iterate
 	increaseM(pts);	
+	_iterationcounter++;
 	makeMprime();
 	expandQR();
-	_iterationcounter++;
 }
 
 /**
@@ -108,36 +107,43 @@ void QRHandler::expandQR(){
 	if(initQR()) return;
 	//update the sizes of @_q and @_r
 	resizeQR();
-	const size_t iteration = _iterationcounter;
 	
 	//the following calculations add the new elements to @_q and @_r
 	double tmp;
-	for(size_t l = 0; l < iteration; l++)
+	for(size_t l = 0; l < _iterationcounter; l++)
 	{
 		tmp = 0;
 		for(size_t k = 0 ; k < _q.size(); k++)
-			tmp += _q[k][l] * _mprime[k][iteration];
-		_r[l][iteration] = tmp;
+			tmp += _q[k][l] * _mprime[k][_iterationcounter];
+		_r[l][_iterationcounter] = tmp;
 	}
+	std::cout << "1" << std::endl;
 	vector<double> sum;
 	sum.assign(_q.size(), 0);
 	for(size_t l = 0; l < sum.size(); l++)
-		for(size_t k = 0; k < iteration; k++)
-			sum[l] += _r[k][iteration] * _q[l][k];
-				
+		for(size_t k = 0; k < _iterationcounter; k++)
+			sum[l] += _r[k][_iterationcounter] * _q[l][k];
+	std::cout << "2" << std::endl;		
 	for(size_t k = 0; k < _q.size(); k++)
-		_q[k][iteration] = _mprime[k][iteration] - sum[k];
-
-	_r[iteration][iteration] = LinAlg::getAbs(LinAlg::getCol(_q, iteration));
-	tmp = LinAlg::getAbs(LinAlg::getCol(_q, iteration));
+		_q[k][_iterationcounter] = _mprime[k][_iterationcounter] - sum[k];
+	std::cout << "3\t" << _iterationcounter << std::endl;
+	for(size_t m = 0; m < _q.size(); m++){
+		for(size_t m1 = 0; m1 < _q[m].size(); m1++)
+			std::cout << _q[m][m1] << "\t";
+		std::cout << std::endl;}
+	
+	_r[_iterationcounter][_iterationcounter] = LinAlg::getAbs(LinAlg::getCol(_q, _iterationcounter));
+	std::cout << "4" << std::endl;
+	tmp = LinAlg::getAbs(LinAlg::getCol(_q, _iterationcounter));
 	for(size_t k = 0; k < _q.size(); k++)
 	{
-		_q[k][iteration] /= tmp;
+		_q[k][_iterationcounter] /= tmp;
 		
 		//If @tmp is 0, the result would become nan. Setting it instead to 0 "stabilizes" the calculations.
-		if(std::isnan(_q[k][iteration])) 
-			_q[k][iteration] = 0;
+		if(std::isnan(_q[k][_iterationcounter])) 
+			_q[k][_iterationcounter] = 0;
 	}
+		std::cout << "5" << std::endl;
 }
 
 /**
@@ -206,8 +212,10 @@ void QRHandler::load(const int order, Professor::ParamPoints& pts, const size_t 
 		_m.resize(pts.numPoints());
 	
 	//set up @_m
-	while(_m[0].size() < numFitParams)
-		iterate(pts, true);
+	while(_m[0].size() < numFitParams){std::cout << "bsize: " << _bprime.size() << std::endl;
+		iterate(pts, true); std::cout << "iteration\t" << _iterationcounter << "\t_msize: " << _m[0].size() << "\tnumfitparams: " << numFitParams << std::endl;}
+	iterate(pts);
+	std::cout << "bsize: " << _bprime.size() << std::endl;
 }
 
 /**

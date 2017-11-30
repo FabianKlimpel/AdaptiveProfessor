@@ -24,6 +24,8 @@ FitHandler::FitHandler(const vector<double>& fitparams, const vector<double>& pt
 
 	//calculate the fit errors
 	setFitErrors(num_ipol);
+	_bfp = _bfperr;
+	_bfperr.clear();
 }
 
 /**
@@ -114,6 +116,7 @@ void FitHandler::setFitErrors(const size_t num_ipol){
 				mat(col, row) = tmp;
 			}
 		}
+
 	//calculating the inverse of the matrix
 	mat = mat.fullPivHouseholderQr().inverse();
 
@@ -125,8 +128,8 @@ void FitHandler::setFitErrors(const size_t num_ipol){
 			if(-mat(i, i) == std::numeric_limits<double>::infinity())
 				_bfperr.push_back(-std::numeric_limits<double>::max());
 			else
-				_bfperr.push_back(sqrt(mat(i, i)));
-		
+				_bfperr.push_back(sqrt(fabs(mat(i, i))));
+	
 	//writing the covariance matrix to file
 	OutputHandler oh;
 	oh.writeCovMat(mat, num_ipol);
@@ -238,7 +241,7 @@ void FitHandler::setToIteration(Professor::ParamPoints& pts, const vector<double
 	if(bestiteration > 0)
 	{
 		//Fast walking the number of iterations along.
-		for(size_t i = 0; i < bestiteration - 1; i++) 
+		while(_qrh.getIterationCounter() < bestiteration - 1)
 			_qrh.iterate(pts, true);
 		
 		//Perform the whole calculation only for the last step. That way the Object is indifferent to a regular stepping.
