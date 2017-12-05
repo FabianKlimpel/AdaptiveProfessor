@@ -53,7 +53,7 @@ void OutputHandler::setDistances(const Professor::ParamPoints& pts){
 void OutputHandler::setupSummary() const{	
 	//set up the file and write the header
 	ofstream outsummary;
-	outsummary.open("summary");
+	outsummary.open("summary", ofstream::out | ofstream::app);
 	outsummary << "Chi^2\tChi2^2,red\tIterations\tDsmooth" << endl;
 	outsummary.close();
 }
@@ -133,7 +133,10 @@ void OutputHandler::writeSummary(FitHandler& fh, Professor::ParamPoints& pts) co
 void OutputHandler::writeCovMat(const MatrixXd& mat, const size_t num_ipol, const string histname) const{
 	//open the file
 	ofstream outcovmat;
-	outcovmat.open((histname + to_string(num_ipol)).c_str());
+	if(histname[0] == '/')
+		outcovmat.open((histname.substr(1, histname.find("/", 1) - 1) + "_" + histname.substr(histname.find("/", 1) + 1) + "_" + to_string(num_ipol)).c_str());
+	else
+		outcovmat.open((histname + to_string(num_ipol)).c_str());
 	
 	//write the matrix
 	for(size_t row = 0; row < (size_t) mat.rows(); row++)

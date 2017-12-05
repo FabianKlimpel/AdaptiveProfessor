@@ -18,9 +18,9 @@ public:
 	ConfigHandler(const string configfile);
 
 	//getter of member variables
-	const int getSummaryFlag(){return _summaryflag;}
-	const int getOutDotFlag(){return _outdotflag;}
-	const int getCovmatFlag(){return _covmat;}
+	const bool getSummaryFlag(){return _summaryflag;}
+	const bool getOutDotFlag(){return _outdotflag;}
+	const bool getCovmatFlag(){return _covmat;}
 	const double getThresholdFit(){return _thresholdfit;}
 	const double getThresholdData(){return _thresholddata;}
 	const double getThresholdErr(){return _thresholderr;}

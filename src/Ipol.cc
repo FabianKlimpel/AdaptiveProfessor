@@ -354,7 +354,6 @@ void Ipol::calcipol(ParamPoints& pts, const std::vector<double>& ptvals, const s
 		
 	delete(ch);
 	qp.Fvalues.clear();
-	qp.iteration_results.clear();
 	//set parameters used by Professor
 	setparams(pts, fh);
 }
@@ -372,29 +371,29 @@ const bool Ipol::iterate(FitHandler& fh, ParamPoints& pts, ConfigHandler* const 
 	fh.nextStep(pts, ch->getThresholdFit(), ch->getKappa());
 	
 	//store quality parameter
-	qp.iteration_results.push_back(fh.getChi2() * (1 - fh.getDsmooth(pts)) / (1 + fh.getDsmooth(pts)));
+	qp.Fvalues.push_back(fh.getChi2() * (1 - fh.getDsmooth(pts)) / (1 + fh.getDsmooth(pts)));
 	
 	//if enough iterations were made, the convergence check will be performed
-	if(qp.iteration_results.size() >= ch->getChi2Mean())
+	if(qp.Fvalues.size() >= ch->getChi2Mean())
 	{
 		double mean = 0.;
-		//calculate the mean of @iteration_results
-		for(size_t i = 0; i < qp.iteration_results.size(); i++)
-			mean += qp.iteration_results[i];
-		mean /= qp.iteration_results.size();
+		//calculate the mean of @qp.Fvalues
+		for(size_t i = 0; i < qp.Fvalues.size(); i++)
+			mean += qp.Fvalues[i];
+		mean /= qp.Fvalues.size();
 
 		//if the current value is equal or worse the sliding mean, the loop ends
-		if(qp.iteration_results[qp.iteration_results.size() - 1] >= mean)
+		if(qp.Fvalues[qp.Fvalues.size() - 1] >= mean)
 			return false;
 
-		//delete the first entry in @iteration_results -> list length remains constant
-		qp.iteration_results.erase(qp.iteration_results.begin());
+		//delete the first entry in @qp.Fvalues -> list length remains constant
+		qp.Fvalues.erase(qp.Fvalues.begin());
 	}
 
 	//store 
-	if(qp.iteration_results.back() < qp.bestF)
+	if(qp.Fvalues.back() < qp.bestF)
 	{
-		qp.bestF = qp.iteration_results.back();
+		qp.bestF = qp.Fvalues.back();
 		qp.bestiteration = fh.getIterationCounter();
 	}
 

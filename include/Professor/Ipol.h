@@ -214,7 +214,6 @@ namespace Professor {
 		size_t bestiteration;
 		double bestF;
 		vector<double> Fvalues;
-		vector<double> iteration_results;
 	};
 	
 	//Setter of parameters that are needed by Professor

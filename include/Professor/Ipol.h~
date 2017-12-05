@@ -8,7 +8,7 @@
 #include <sstream>
 #include <iostream>
 #include <stdexcept>
-#include "ConfigHandler.h"
+#include "Professor/ConfigHandler.h"
 #include "Professor/OutputHandler.h"
 #include "Professor/FitHandler.h"
 
@@ -102,12 +102,11 @@ namespace Professor {
         _minPV = pts.ptmins();
         _maxPV = pts.ptmaxs();
       }
-cout << "1" << endl;
       _coeffs = calcCoeffs(pts, ptvals, _order, svdthreshold, _structure);
     };
  
     //modified constructor for the iterative fitting
-    Ipol(ParamPoints& pts, const std::vector<double>& ptvals, const vector<double>& pterrs, int& num_ipol, bool doipol, int& order, std::vector<double>& fitparams, const string& configfile);
+    Ipol(ParamPoints& pts, const std::vector<double>& ptvals, const vector<double>& pterrs, const int num_ipol, const string histname, const bool doipol, const int order, const std::vector<double>& fitparams, const string configfile);
 
     /// Constructor to read ipol from file (one string for each object)
     /// @todo Also allow optional passing of pmins, pmaxs vectors for the case where the string includes scaling?
@@ -210,25 +209,28 @@ cout << "1" << endl;
     std::string _name;
     std::vector<double> _coeffs, _minPV, _maxPV;
 
+	//Structure that stores parameters that state the fit quality. This is necessary for a cut-off of the iterations
 	struct qualityparams{
 		size_t bestiteration;
-		double bestchi2;
-		vector<double> chi2values;
+		double bestF;
+		vector<double> Fvalues;
 		vector<double> iteration_results;
 	};
 	
+	//Setter of parameters that are needed by Professor
 	void setparams(ParamPoints& pts, FitHandler& fh);
-	bool iterate(FitHandler& fh, ParamPoints& pts, ConfigHandler* ch, qualityparams& qp);
+	
+	//Function that performs an iteration of the adaptive interpolation
+	const bool iterate(FitHandler& fh, ParamPoints& pts, ConfigHandler* const ch, qualityparams& qp) const;
 	
     //mapping function of the fit parameter terms in order to use them with Professor 2.2.1
-    std::vector<int> sort_strucs(ParamPoints& pts);
+    const std::vector<int> sort_strucs(ParamPoints& pts) const;
     
     //function that actually performs the fit
-    void calcipol(ParamPoints& pts, const std::vector<double>& ptvals, const std::vector<double>& pterrs, int& num_ipol, const std::string& configfile);
+    void calcipol(ParamPoints& pts, const std::vector<double>& ptvals, const std::vector<double>& pterrs, const int num_ipol, const std::string configfile, const std::string histname);
 
     //function that actually performs the error calculation of the fit
-    void calcerr(ParamPoints& pts, const std::vector<double>& pterrs, int& order, std::vector<double>& fitparams, int& num_ipol);
-
+    void calcerr(ParamPoints& pts, const std::vector<double>& pterrs, const int order, const std::vector<double>& fitparams, const int num_ipol, const std::string histname);
   };
 
 
